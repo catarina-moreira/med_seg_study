@@ -32,3 +32,10 @@ The **Marching Cubes** algorithm is a widely-used computer graphics algorithm fo
 
 4. **Mesh Output**: These triangles are combined into a continuous mesh, forming a 3D object that represents the surface.
 
+## Datasets
+
+### Totalsegmentator CT Scan Dataset
+
+The dataset consists of 1228 CT images with segmented 117 anatomical structures covering a majority of relevant classes for most use cases. The CT images were randomly sampled from clinical routine, thus representing a real world dataset which generalizes to clinical application. The dataset contains a wide range of different pathologies, scanners, sequences and institutions.
+
+Link to the dataset: [Totalsegmentator_dataset_v201.zip](https://zenodo.org/records/10047292)
