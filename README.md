@@ -1,7 +1,3 @@
-Here's an improved version with clearer organization and enhanced explanations:
-
----
-
 # Research on Medical Image Segmentation Libraries
 
 This repository focuses on studying state-of-the-art medical image segmentation libraries, with a goal of integrating them into a Python pipeline for automated segmentation and 3D reconstruction from CT and MRI scans.
