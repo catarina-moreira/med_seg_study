@@ -9,6 +9,8 @@ pip_packages = [
     "nibabel",
     "pydicom",
     "matplotlib",
+    "jupyter_contrib_nbextensions",
+    "ipympl",
     "plotly",
     "imageio",
     "scikit-image",

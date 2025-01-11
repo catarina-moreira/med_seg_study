@@ -20,19 +20,25 @@ import ipywidgets as widgets
 from utils.data_processing import load_ct_scan
 
 
-def generate_gif(file_path, output_filepath = "./ct.gif"):
+def generate_gif(file_path, output_filepath = "ct.gif"):
 
     # Load the CT scan file using nibabel
     ct_data = load_ct_scan(file_path)
-
     filename = os.path.splitext(os.path.basename(file_path))[0]
 
     # Normalize the CT scan data for visualization
     ct_data_normalized = (ct_data - ct_data.min()) / (ct_data.max() - ct_data.min()) * 255
     ct_data_normalized = ct_data_normalized.astype(np.uint8)
 
-    # Define the output GIF path
-    output_gif_path = os.path.join("gifs", output_filepath)
+    # Define the output GIF path folder
+    output_gif_folder = os.path.join("outputs", "gifs")
+
+    # if output_gif_path doesn't exist, create it
+    if not os.path.exists(output_gif_folder):
+        os.makedirs(output_gif_folder)
+
+    # Define the output GIF path file
+    output_gif_path = os.path.join("outputs", "gifs", output_filepath)
 
     # Create a temporary directory for storing images
     temp_dir = tempfile.mkdtemp()
@@ -218,10 +224,14 @@ def visualize_gif(gif, width=400):
         gif (str): Path or URL to the GIF.
         width (int): Width of the GIF in pixels. Default is 400.
     """
+
+    # replace backslashes with forward slashes
+    gif = gif.replace("\\", "/")
+
     # HTML code to display the single GIF
     html_code = f"""
     <div style="display: flex; justify-content: center;">
-        <img src="{gif}" style="width: {width}px; height: auto;" />
+        <img src="{gif}" style="width: {width}px; height: auto;" loop />
     </div>
     """
     # Display the HTML
