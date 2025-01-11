@@ -13,7 +13,9 @@ import pydicom
 
 import pyvista as pv
 
-from IPython.display import Image, HTML
+from IPython.display import display, Image, HTML
+
+import ipywidgets as widgets
 
 from utils.data_processing import load_ct_scan
 
@@ -160,7 +162,7 @@ def visualize_mesh(mesh, file_path, id, isPrediction = False, smoothing_iter = 5
     mesh_smooth = mesh.smooth(n_iter=smoothing_iter, relaxation_factor=relaxation_factor)
 
     # Set up the PyVista plotter
-    plotter = pv.Plotter()
+    plotter = pv.Plotter(notebook=True)
     plotter.add_mesh(mesh_smooth, 
                         color=mesh_color, 
                         show_edges=False, 
@@ -173,20 +175,104 @@ def visualize_mesh(mesh, file_path, id, isPrediction = False, smoothing_iter = 5
 
     HOME = os.getcwd()
 
-    output_path = os.path.join(HOME, "3d_reconstruction", id)
+    output_path = os.path.join(HOME, "outputs", "3d_reconstruction", id)
     
     # create output directory if it doesn't exist
     if not os.path.exists(output_path):
         os.makedirs(output_path)
     
-    if isPrediction:\
+    if isPrediction:
         output_path = os.path.join(output_path, "_pred.html")
     else:
         output_path = os.path.join(output_path, filename + ".html")
+    plotter.export_html(output_path)  
     print(f"Saving mesh to {output_path}")
 
-    # Save the plot as an interactive HTML file using 'pythreejs' backend
-    plotter.export_html(output_path, backend='pythreejs')
-    #html_content = open(output_path, 'r').read()
+
+    plotter.show(jupyter_backend='trame')
 
     return output_path
+
+def visualize_gifs_side_by_side(gif1, gif2, width=400):
+
+    # HTML code to display the GIFs side-by-side
+    html_code = f"""
+    <div style="display: flex; justify-content: space-around;">
+        <div>
+            <img src="{gif1}" style="width: {width}px; height: auto;" />
+        </div>
+        <div>
+            <img src="{gif2}" style="width: {width}px; height: auto;" />
+        </div>
+    </div>
+    """
+
+    # Display the HTML
+    display(HTML(html_code))
+
+def visualize_gif(gif, width=400):
+    """
+    Displays a single GIF in a Jupyter Notebook.
+
+    Parameters:
+        gif (str): Path or URL to the GIF.
+        width (int): Width of the GIF in pixels. Default is 400.
+    """
+    # HTML code to display the single GIF
+    html_code = f"""
+    <div style="display: flex; justify-content: center;">
+        <img src="{gif}" style="width: {width}px; height: auto;" />
+    </div>
+    """
+    # Display the HTML
+    display(HTML(html_code))
+
+
+def visualize_ct_scan(ct_filepath):
+    # Load the .nii file
+    nii_data = nib.load(ct_filepath)
+    image_data = nii_data.get_fdata()
+    
+    # Cache slices
+    slices_cache = [image_data[:, :, i] for i in range(image_data.shape[2])]
+    
+    # Create a figure
+    fig, ax = plt.subplots(figsize=(6, 6))
+    img = ax.imshow(slices_cache[0], cmap="gray")
+    ax.axis("off")
+    
+    # Update function
+    def update(slice_index):
+        img.set_data(slices_cache[slice_index])
+        ax.set_title(f"Slice {slice_index}")
+        fig.canvas.draw_idle()
+    
+    # Slider and Textbox
+    slice_slider = widgets.IntSlider(
+        value=0,
+        min=0,
+        max=image_data.shape[2] - 1,
+        step=1,
+        description="Slice",
+        continuous_update=False  # Faster updates
+    )
+    slice_textbox = widgets.IntText(
+        value=0,
+        description="Mask Index:"
+    )
+    
+    # Sync slider and textbox
+    def sync_widgets(change):
+        if change["owner"] == slice_slider:
+            slice_textbox.value = change["new"]
+        elif change["owner"] == slice_textbox:
+            if 0 <= change["new"] < image_data.shape[2]:
+                slice_slider.value = change["new"]
+    
+    slice_slider.observe(sync_widgets, names="value")
+    slice_textbox.observe(sync_widgets, names="value")
+    
+    # Interactive display
+    widgets.interactive(update, slice_index=slice_slider)
+    display(widgets.HBox([slice_slider, slice_textbox]))
+    update(0)  # Initialize with the first slice

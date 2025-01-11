@@ -27,16 +27,16 @@ def generate_3d_reconstruction(file_path, id = "ID0", isPrediction = False):
     # Create a PyVista mesh for visualization
     mesh = pv.PolyData(vertices, faces_formatted)
     
-    output_path = os.path.join(HOME, "mesh", id)
+    output_path = os.path.join(HOME, "outputs", "mesh", id)
     
     # create output directory if it doesn't exist
     if not os.path.exists(output_path):
         os.makedirs(output_path)
     
     if isPrediction:
-        output_path = os.path.join(output_path, "_pred.vtk")
+        output_path = os.path.join(output_path, "_pred.obj")
     else:
-        output_path = os.path.join(output_path, filename + ".vtk")
+        output_path = os.path.join(output_path, filename + ".obj")
 
     print(f"Saving mesh to {output_path}")
     
