@@ -2,6 +2,7 @@ import os
 import numpy as np
 import nibabel as nib
 import pydicom
+import scipy.ndimage as ndimage
 
 
 
@@ -83,3 +84,28 @@ def overlay_images(dicom_slice, seg_slice):
     overlay[seg_mask, 0] = 1  # Make segmentation region red
 
     return overlay
+
+def pre_process_ct_scan( ct_scan_filepath ):
+
+    # Load the NIfTI file
+    nii_file = nib.load(ct_scan_filepath)
+    ct_data = nii_file.get_fdata()  # Convert to numpy array
+
+    print(f"Shape: {ct_data.shape}, Data Type: {ct_data.dtype}")
+
+    # CT scans often have anisotropic voxel spacing (e.g., spacing between slices may differ from the in-plane resolution). 
+    # Resampling ensures isotropic voxel spacing or a consistent resolution.
+
+    # Define the original and desired spacing
+    original_spacing = nii_file.header.get_zooms()  # e.g., (0.5, 0.5, 2.0)
+    desired_spacing = (1.0, 1.0, 1.0)
+
+    # Compute resampling factor
+    resize_factor = [o / d for o, d in zip(original_spacing, desired_spacing)]
+    new_shape = [int(s * f) for s, f in zip(ct_data.shape, resize_factor)]
+
+    # Resample the data
+    ct_data_resampled = ndimage.zoom(ct_data, resize_factor, order=1)  # Linear interpolation
+    return ct_data_resampled
+
+

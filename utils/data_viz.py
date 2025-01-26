@@ -17,13 +17,12 @@ from IPython.display import display, Image, HTML
 
 import ipywidgets as widgets
 
-from utils.data_processing import load_ct_scan
+from utils.data_processing import load_ct_scan, pre_process_ct_scan
 
 
 def generate_gif(file_path, output_filepath = "ct.gif"):
 
-    # Load the CT scan file using nibabel
-    ct_data = load_ct_scan(file_path)
+    ct_data = pre_process_ct_scan( file_path )
     filename = os.path.splitext(os.path.basename(file_path))[0]
 
     # Normalize the CT scan data for visualization
