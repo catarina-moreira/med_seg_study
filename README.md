@@ -21,3 +21,12 @@ In this study, I used TotalSegmentator in a Python pipeline to extract segmentat
 The dataset consists of 1228 CT images with segmented 117 anatomical structures covering a majority of relevant classes for most use cases. The CT images were randomly sampled from clinical routine, thus representing a real world dataset which generalizes to clinical application. The dataset contains a wide range of different pathologies, scanners, sequences and institutions.
 
 Link to the dataset: [Totalsegmentator_dataset_v201.zip](https://zenodo.org/records/10047292)
+
+### 2. MONAI
+
+MONAI is a deep learning framework for medical imaging analysis. It provides a comprehensive set of tools for building, training, and deploying deep learning models for medical image analysis tasks. MONAI is designed to be flexible and scalable, allowing researchers and developers to easily integrate their own models or use pre-trained models from the MONAI Model Zoo.
+
+Link to the MONAI documentation: [MONAI Documentation](https://docs.monai.io/en/stable/)
+
+![MONAI](./figs/monai.png "Full body segmentation using MONAI")
+
