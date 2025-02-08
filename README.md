@@ -28,5 +28,5 @@ MONAI is a deep learning framework for medical imaging analysis. It provides a c
 
 Link to the MONAI documentation: [MONAI Documentation](https://docs.monai.io/en/stable/)
 
-![MONAI](./figs/monai.png "Full body segmentation using MONAI")
+<img src="./figs/monai.png" alt="Full body segmentation using MONAI" width="400"/>
 
