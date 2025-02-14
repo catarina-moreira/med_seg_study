@@ -4,7 +4,6 @@ from skimage import measure
 import numpy as np
 import pyvista as pv
 
-
 from utils.data_processing import load_ct_scan, pre_process_ct_scan
 
 def generate_3d_reconstruction(file_path, id = "ID0", isPrediction = False, level=0.7):
@@ -34,9 +33,9 @@ def generate_3d_reconstruction(file_path, id = "ID0", isPrediction = False, leve
         os.makedirs(output_path)
     
     if isPrediction:
-        output_path = os.path.join(output_path, "_pred.obj")
+        output_path = os.path.join(output_path, filename + "_march_cubes" + "_pred.obj")
     else:
-        output_path = os.path.join(output_path, filename + ".obj")
+        output_path = os.path.join(output_path, filename + "_march_cubes" + ".obj")
 
     print(f"Saving mesh to {output_path}")
     
@@ -44,12 +43,6 @@ def generate_3d_reconstruction(file_path, id = "ID0", isPrediction = False, leve
 
     return mesh
 
-import os
-
-import numpy as np
-import pyvista as pv
-
-from utils.data_processing import load_ct_scan, pre_process_ct_scan
 
 def generate_3d_reconstruction_flying_edges(file_path, id="ID0", isPrediction=False, level=0.7):
     """
@@ -90,9 +83,9 @@ def generate_3d_reconstruction_flying_edges(file_path, id="ID0", isPrediction=Fa
         os.makedirs(output_path)
 
     if isPrediction:
-        output_file = os.path.join(output_path, "_pred.obj")
+        output_file = os.path.join(output_path, filename + "_flying_edges" + "_pred.obj")
     else:
-        output_file = os.path.join(output_path, f"{filename}.obj")
+        output_file = os.path.join(output_path, filename + "_flying_edges" + ".obj")
 
     print(f"Saving mesh to {output_file}")
 

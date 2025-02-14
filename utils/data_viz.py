@@ -17,6 +17,10 @@ from IPython.display import display, Image, HTML
 
 import ipywidgets as widgets
 
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
+
 from utils.data_processing import load_ct_scan, pre_process_ct_scan
 
 
@@ -60,6 +64,7 @@ def generate_gif(file_path, output_filepath = "ct.gif"):
         images.append(imageio.imread(image_file))
 
     # Create the GIF
+    os.makedirs(output_gif_folder, exist_ok=True)    
     imageio.mimsave(output_gif_path, images, duration=0.1)
 
     # Remove the temporary directory and its contents after GIF creation
@@ -99,7 +104,7 @@ def visualize_dicom_files(directory_path):
 
 
 # Function to load and visualize all slices of a NIfTI (.nii.gz) file
-def show_nii_slices(file_path, n_cols=5):
+def show_nii_slices(file_path, n_cols=5, cmap="bone"):
     # Load the NIfTI file
     img = nib.load(file_path)
 
@@ -121,7 +126,7 @@ def show_nii_slices(file_path, n_cols=5):
         row = i // n_cols
         col = i % n_cols
         ax = axes[row, col]
-        ax.imshow(img_data[:, :, i], cmap='gray')
+        ax.imshow(img_data[:, :, i], cmap=cmap)
         ax.set_title(f'Slice {i+1}/{num_slices}')
         ax.axis('off')  # Hide the axes
 
@@ -132,18 +137,97 @@ def show_nii_slices(file_path, n_cols=5):
     plt.show()
 
 
+def show_nii_slices_with_mask(ct_path, mask_path, ct_map="bone", mask_map="Reds", n_cols=5, alpha=0.5):
+    """
+    Displays all slices of a CT scan with the segmentation mask overlay.
+
+    Parameters:
+    - ct_path: Path to the CT scan NIfTI file (.nii.gz)
+    - mask_path: Path to the segmentation mask NIfTI file (.nii.gz)
+    - ct_map: Colormap for the CT scan (default is "bone")
+    - mask_map: Colormap for the segmentation mask (default is "Reds")
+    - n_cols: Number of columns in the display grid (default is 5)
+    - alpha: Transparency of the segmentation overlay (default is 0.5)
+    """
+
+    # Load the NIfTI files
+    ct_img = nib.load(ct_path)
+    mask_img = nib.load(mask_path)
+
+    # Convert to numpy arrays
+    ct_data = ct_img.get_fdata()
+    mask_data = mask_img.get_fdata()
+
+    # Ensure both images have the same dimensions
+    assert ct_data.shape == mask_data.shape, "CT scan and segmentation mask must have the same dimensions!"
+
+    # Get the number of slices
+    num_slices = ct_data.shape[2]
+
+    # Calculate the number of rows needed
+    n_rows = int(np.ceil(num_slices / n_cols))
+
+    # Create subplots
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(15, 3 * n_rows))
+    fig.subplots_adjust(hspace=0.3)
+
+    # Create colormaps
+    cmap_ct = plt.get_cmap(ct_map)  # CT scan colormap
+    cmap_mask = plt.get_cmap(mask_map)  # Segmentation mask colormap
+
+    # Normalize colormap for the mask
+    norm = mcolors.Normalize(vmin=0, vmax=1)
+
+    # Plot each slice with the segmentation mask overlay
+    for i in range(num_slices):
+        row = i // n_cols
+        col = i % n_cols
+        ax = axes[row, col]
+
+        # Normalize CT scan for better visualization
+        ct_slice = ct_data[:, :, i]
+        ct_norm = (ct_slice - np.min(ct_slice)) / (np.max(ct_slice) - np.min(ct_slice))
+
+        # Get the mask slice and ensure it’s binary (0s and 1s)
+        mask_slice = mask_data[:, :, i]
+        mask_binary = mask_slice > 0  # Convert mask to boolean (True = segmentation, False = background)
+
+        # Apply the "bone" colormap to the CT scan
+        ct_colored = cmap_ct(ct_norm)[:, :, :3]  # Convert grayscale to RGB
+
+        # Convert mask into RGBA with proper transparency
+        mask_colored = cmap_mask(mask_binary.astype(float))  # Apply colormap
+        mask_colored[..., 3] = mask_binary * alpha  # Apply transparency to mask only
+
+        # Display CT scan
+        ax.imshow(ct_colored)
+
+        # Overlay segmentation mask with transparency
+        ax.imshow(mask_colored)
+
+        # Set title and remove axes
+        ax.set_title(f'Slice {i+1}/{num_slices}')
+        ax.axis('off')
+
+    # Hide any unused subplots
+    for j in range(i + 1, n_rows * n_cols):
+        fig.delaxes(axes[j // n_cols, j % n_cols])
+
+    plt.show()
+
+
 
 # Function to visualize DICOM, segmentation, and overlap side by side
-def visualize_side_by_side(dicom_slice, seg_slice, overlay, isPrediction = False):
+def visualize_side_by_side(dicom_slice, seg_slice, overlay, cmap = "gray", isPrediction = False):
     fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
     # Display DICOM slice
-    axes[0].imshow(dicom_slice, cmap='gray')
+    axes[0].imshow(dicom_slice, cmap='bone')
     axes[0].set_title('Image Slice')
     axes[0].axis('off')
 
     # Display segmentation slice
-    axes[1].imshow(seg_slice, cmap='gray')
+    axes[1].imshow(seg_slice, cmap=cmap)
     if isPrediction:
         axes[1].set_title('Predicted Segmented Slice')
     else:

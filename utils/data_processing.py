@@ -4,6 +4,8 @@ import nibabel as nib
 import pydicom
 import scipy.ndimage as ndimage
 
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 
 def load_ct_scan(file_path):
@@ -71,7 +73,7 @@ def load_nii_segmentation(nii_file_path, slice_index):
     return seg_slice
 
 # Function to overlap DICOM and segmentation mask
-def overlay_images(dicom_slice, seg_slice):
+def overlay_images_backup(dicom_slice, seg_slice):
     # Normalize both images to [0, 1] for visualization purposes
     dicom_norm = (dicom_slice - np.min(dicom_slice)) / (np.max(dicom_slice) - np.min(dicom_slice))
     seg_mask = seg_slice.astype(bool)  # Convert segmentation to boolean mask
@@ -83,7 +85,43 @@ def overlay_images(dicom_slice, seg_slice):
     overlay[:, :, 2] = dicom_norm  # Blue channel for the DICOM
     overlay[seg_mask, 0] = 1  # Make segmentation region red
 
+
+def overlay_images(dicom_slice, seg_slice, alpha=0.5, mask_cmap="Reds", ct_cmap="bone"):
+    """
+    Overlays a segmentation mask on top of a DICOM (CT) slice using different colormaps.
+
+    Parameters:
+    - dicom_slice: 2D numpy array representing the CT slice.
+    - seg_slice: 2D numpy array representing the segmentation mask.
+    - alpha: Transparency level of the segmentation mask (default is 0.5).
+    - mask_cmap: Colormap for the segmentation mask (default is "Reds").
+    - ct_cmap: Colormap for the CT scan (default is "bone").
+
+    Returns:
+    - overlay: 3D numpy array (RGB image) with the segmentation mask overlaid.
+    """
+
+    # Normalize CT image for better visualization
+    dicom_norm = (dicom_slice - np.min(dicom_slice)) / (np.max(dicom_slice) - np.min(dicom_slice))
+
+    # Apply the "bone" colormap to the CT image
+    ct_colormap = plt.get_cmap(ct_cmap)  # Get the colormap for CT scan
+    ct_colored = ct_colormap(dicom_norm)[:, :, :3]  # Convert to RGB (ignore alpha)
+
+    # Convert segmentation mask to binary
+    seg_mask = seg_slice > 0  # Ensures mask is boolean (True where segmentation exists, False otherwise)
+
+    # Get the colormap for the mask
+    mask_colormap = plt.get_cmap(mask_cmap)  # Get the colormap for the segmentation mask
+    mask_colored = mask_colormap(seg_mask.astype(float))  # Convert mask to RGBA
+
+    # Overlay the segmentation mask onto the CT scan using alpha blending
+    overlay = ct_colored.copy()  # Start with the CT image
+    overlay[seg_mask] = (1 - alpha) * overlay[seg_mask] + alpha * mask_colored[seg_mask, :3]
+
     return overlay
+
+
 
 def pre_process_ct_scan( ct_scan_filepath ):
 
