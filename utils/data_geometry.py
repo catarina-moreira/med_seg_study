@@ -66,7 +66,7 @@ def generate_3d_reconstruction_flying_edges(file_path, id="ID0", isPrediction=Fa
     HOME = os.getcwd()
 
     # Create a PyVista grid from the CT data
-    grid = pv.UniformGrid()
+    grid = pv.ImageData()
     grid.dimensions = ct_data.shape
     grid.spacing = (1.0, 1.0, 1.0)  # Set the voxel spacing (adjust as needed)
     grid.origin = (0.0, 0.0, 0.0)   # Set the grid origin

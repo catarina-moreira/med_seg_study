@@ -244,7 +244,7 @@ def visualize_side_by_side(dicom_slice, seg_slice, overlay, cmap = "gray", isPre
 
 
 
-def visualize_mesh(mesh, file_path, id, isPrediction = False, smoothing_iter = 50, relaxation_factor = 0.1, mesh_color = '#FFCC99', opacity = 0.7, background_color = "black" ):
+def visualize_mesh(mesh, file_path, id, isPrediction = False, algo="mach_cubes", smoothing_iter = 50, relaxation_factor = 0.1, mesh_color = '#FFCC99', opacity = 0.7, background_color = "black" ):
     
     filename = os.path.basename(file_path)
         
@@ -271,9 +271,9 @@ def visualize_mesh(mesh, file_path, id, isPrediction = False, smoothing_iter = 5
         os.makedirs(output_path)
     
     if isPrediction:
-        output_path = os.path.join(output_path, "_pred.html")
+        output_path = os.path.join(output_path, filename + "_" + algo + "_pred.html")
     else:
-        output_path = os.path.join(output_path, filename + ".html")
+        output_path = os.path.join(output_path, filename + "_" + algo + ".html")
     plotter.export_html(output_path)  
     print(f"Saving mesh to {output_path}")
 
