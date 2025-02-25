@@ -33,9 +33,9 @@ def generate_3d_reconstruction(file_path, id = "ID0", isPrediction = False, leve
         os.makedirs(output_path)
     
     if isPrediction:
-        output_path = os.path.join(output_path, filename + "_march_cubes" + "_pred.obj")
+        output_path = os.path.join(output_path, filename + "_march_cubes" + "_pred.vtk")
     else:
-        output_path = os.path.join(output_path, filename + "_march_cubes" + ".obj")
+        output_path = os.path.join(output_path, filename + "_march_cubes" + ".vtk")
 
     print(f"Saving mesh to {output_path}")
     
