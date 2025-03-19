@@ -9,7 +9,10 @@ pip_packages = [
 	"git+https://github.com/wasserth/TotalSegmentator.git",
 	"xmltodict",
 	"acvl_utils==0.2",
-	"fury"
+	"fury",
+    "acvl_utils",  
+    "ace_tools" 
+ 
 ]
 
 
